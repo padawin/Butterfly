@@ -89,6 +89,17 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
         return $stmt->fetch() != false;
     }
 
+    public function hasAccessToPage($module, $action, $idSite)
+    {
+        $resource = Butterfly_Acl_Resource::loadFromRequest($module, $action, $idSite);
+
+        if (!$resource) {
+            return true;
+        }
+
+        return $this->hasAccessToResource($resource->id_acl_resource) || $this->getRole()->hasAccessToResource($resource->id_acl_resource);
+    }
+
     public function getRole()
     {
         if ($this->_role == null) {
