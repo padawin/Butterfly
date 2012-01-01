@@ -51,4 +51,17 @@ class Butterfly_Acl_Role extends Butterfly_Db_NestedSet
         $role = new self;
         return $role->_fetch('Butterfly_Acl_Role', $where, $values, $additionnals, $join);
     }
+
+    public static function loadByName($name)
+    {
+        $role = new self;
+
+        return $role->_fetchOne(
+            'Butterfly_Acl_Role',
+            'acl_role_name = :name',
+            array(
+                'name' => $name
+            )
+        );
+    }
 }
