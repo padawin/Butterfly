@@ -157,7 +157,7 @@ class Butterfly_File_Image extends Butterfly_File
             else {
                 $height = null;
             }
-            $size = $this->_getSizeFromMaxSize($oldWidth, $oldHeight, $width, $height, $canBeEnlarged);
+            $size = $this->_getSizeFromMaxSize($oldWidth, $oldHeight, $width, $height, $canBeEnlarged, $crop);
         }
         else {
             $size = array(
@@ -222,7 +222,7 @@ class Butterfly_File_Image extends Butterfly_File
      * @return array containing the new width and height
      *
      */
-    private function _getSizeFromMaxSize($widthImage, $heightImage, $widthMax = null, $heightMax = null, $canBeEnlarged = true)
+    private function _getSizeFromMaxSize($widthImage, $heightImage, $widthMax = null, $heightMax = null, $canBeEnlarged = true, $crop = false)
     {
         $size = array();
         $coefWidth = 1;
@@ -251,7 +251,7 @@ class Butterfly_File_Image extends Butterfly_File
             $size['width'] = $widthImage;
             $size['height'] = $heightImage;
         }
-        elseif ($ratioHeight <= $ratioWidth) {
+        elseif (!$crop && $ratioHeight <= $ratioWidth || $crop && $ratioHeight > $ratioWidth) {
             $size['height'] = $heightMax;
             $size['width'] = $widthImage * $heightMax / $heightImage;
         }
