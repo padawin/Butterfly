@@ -171,18 +171,22 @@ class Butterfly_File_Image extends Butterfly_File
         //define the coordinate to create the new picture, if a crop is asked
         $srcX = 0;
         $srcY = 0;
-        if ($crop && $newWidth != $newHeight) {
-            if (max($newWidth, $newHeight) == $newWidth) {
-                $srcX = abs($oldWidth - $oldHeight) / 2;
-            }
-            else {
-                $srcY = ($oldHeight - $oldWidth) / 2;
-            }
-            $min = min($newWidth, $newHeight);
-            $newWidth = $newHeight = $min;
 
-            $min = min($oldWidth, $oldHeight);
-            $oldWidth = $oldHeight = $min;
+        //a crop can only be done if the 2 output size are given
+        if ($crop && !empty($width) && !empty($height)) {
+            if ($newWidth > $width) {
+                $croppedWidth = $oldWidth * $width / $newWidth;
+                $srcX = ($oldWidth - $croppedWidth) / 2;
+                $oldWidth = $croppedWidth;
+            }
+            elseif ($newHeight > $height) {
+                $croppedHeight = $oldHeight * $height / $newHeight;
+                $srcY = ($oldHeight - $croppedHeight) / 2;
+                $oldHeight = $croppedHeight;
+            }
+
+            $newWidth = $width;
+            $newHeight = $height;
         }
 
         $newImage = imagecreatetruecolor($newWidth, $newHeight);
