@@ -320,52 +320,52 @@ class Butterfly_FrontController
     protected function _loadModule()
     {
         //check if module name and action name are only [A-Za-z]
+        if (!preg_match('#^[\w-_]+$#', $this->_moduleParam)) {
+            throw new Butterfly_Component_Module_Exception('The module name is not correct');
+        }
+        if (!preg_match('#^[\w-_]+$#', $this->_actionParam)) {
+            throw new Butterfly_Component_Module_Exception('The action name is not correct');
+        }
 
         $controllerName = $this->_moduleParam . '_Controller';
+
+        if (!is_dir($this->_config->modules_path . '/' . $this->_moduleParam)) {
+            throw new Butterfly_Component_Module_Exception('The module does not exist');
+        }
 
         //the controller exists
         if (is_file($this->_config->modules_path . '/' . $this->_moduleParam . '/Controller.php')) {
             $this->_module = new $controllerName($this->_layout);
-            $this->_module->ajax = !$this->_layout->getRender();
             $this->_module->init();
-
-            if (!empty($this->_actionParam)) {
-                $action = preg_replace('/[-_\s]/', '', strtolower($this->_actionParam)) . 'Action';
-
-                if (method_exists($this->_module, $action)) {
-                    $this->_module->$action();
-                }
-
-                $this->_module->setViewBase($this->_config->modules_path . '/' . $this->_moduleParam . '/views/');
-                if (!$this->_module->hasViewFile()) {
-                    $this->_module->setView(strtolower($this->_actionParam));
-                }
-            }
-            else {
-                $defaultAction = $this->_config->default_action . 'Action';
-                if (method_exists($this->_module, $this->_config->default_action . 'Action')) {
-                    $this->_module->$defaultAction();
-                }
-                $this->_module->setViewBase($this->_config->modules_path . '/' . $this->_moduleParam . '/views/');
-                if (!$this->_module->hasViewFile()) {
-                    $this->_module->setView($this->_config->default_action);
-                }
-            }
         }
-        // the controller does not exist
         else {
             $this->_module = new Butterfly_Component_Module($this->_layout);
+        }
 
-            $this->_module->setViewBase($this->_config->modules_path . '/' . $this->_moduleParam . '/views/');
-            if(!empty($this->_actionParam)){
-                $this->_module->setView(strtolower($this->_actionParam));
-            }
-            else {
-                $this->_module->setView($this->_config->default_action);
-            }
+        $this->_module->setViewBase($this->_config->modules_path . '/' . $this->_moduleParam . '/views/');
+
+        if (!empty($this->_actionParam)) {
+            $action = preg_replace('/[-_\s]/', '', strtolower($this->_actionParam)) . 'Action';
+            $view = strtolower($this->_actionParam);
+        }
+        else {
+            $action = $this->_config->default_action . 'Action';
+            $view = $this->_config->default_action;
+        }
+
+        if (method_exists($this->_module, $action)) {
+            $this->_module->$action();
+        }
+
+        //The view can have been setted in the init or action
+        if (!$this->_module->hasViewFile()) {
+            $this->_module->setView($view);
         }
 
         //at this point a view MUST be defined
+        if (!$this->_module->viewExists()) {
+            throw new Butterfly_View_Exception('View file not found : ' . $this->_module->getView()->getFile());
+        }
     }
 
     /**
