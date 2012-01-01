@@ -524,11 +524,10 @@ class Butterfly_FrontController
      * Set the module name, action name and complementary parameter
      *
      */
-    public function setRoad($module, $action = '', $complement = '')
+    public function setRoad($module, $action = '')
     {
         $this->_moduleParam = ucfirst($module);
         $this->_actionParam = $action;
-        $this->_complementParam = $complement;
     }
 
     /**
