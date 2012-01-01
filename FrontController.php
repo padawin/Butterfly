@@ -31,15 +31,6 @@ class Butterfly_FrontController
 
     /**
      *
-     * Complementary parameter, from the Http request
-     *
-     * @access private
-     *
-     */
-    private $_complementParam;
-
-    /**
-     *
      * Template of the page, in which the module and the widgets will be displayed
      *
      * @var Layout
