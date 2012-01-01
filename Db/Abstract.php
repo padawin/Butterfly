@@ -281,6 +281,8 @@ abstract class Butterfly_Db_Abstract
         else {
             $this->_db->rollback();
         }
+
+        return $return;
     }
 
     protected function _insert()
