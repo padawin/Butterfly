@@ -38,7 +38,7 @@ class Butterfly_Acl_Role extends Butterfly_Db_NestedSet
             'right' => $this->nestedset_right,
             'idResource' => $idResource));
 
-        return $row == false ? false : true;
+        return $stmt->fetch() != false;
     }
 
     /**
