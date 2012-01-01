@@ -14,97 +14,102 @@
  */
 
 
-abstract class Butterfly_Http_Request
+class Butterfly_Http_Request
 {
 
-    private static $_post;
+    private $_post;
 
-    private static $_get;
+    private $_get;
 
-    private static $_params = array();
+    private $_params = array();
+
+    private $_dispatched = false;
+
+    private static $_instance = null;
 
     private function __construct()
     {
 
     }
 
-    public static function setParam($name, $value)
+    public static function getInstance()
     {
-        self::$_params[$name] = $value;
+        if (empty(self::$_instance)) {
+            self::$_instance = new self;
+            self::$_instance->_init();
+        }
+
+        return self::$_instance;
+    }
+
+    protected function _init()
+    {
+        $this->_get = $_GET;
+        $this->_post = $_POST;
+    }
+
+    public function setParam($name, $value)
+    {
+        $this->_params[$name] = $value;
     }
 
     /**
      * Return the param named $paramName
      * @param $paramName name of the requested parameter
      */
-    public static function getParam($paramName, $default = null)
+    public function getParam($paramName, $default = null)
     {
-        if (isset($_GET[$paramName])) {
-            return htmlspecialchars($_GET[$paramName]);
+        if (isset($this->_params[$paramName])) {
+            return htmlspecialchars($this->_params[$paramName]);
         }
-        elseif (isset($_POST[$paramName])) {
-            return htmlspecialchars($_POST[$paramName]);
+        elseif (isset($this->_get[$paramName])) {
+            return htmlspecialchars($this->_get[$paramName]);
         }
-        elseif (isset(self::$_params[$paramName])) {
-            return htmlspecialchars(self::$_params[$paramName]);
+        elseif (isset($this->_post[$paramName])) {
+            return htmlspecialchars($this->_post[$paramName]);
         }
         else {
             return $default;
         }
     }
 
-    /**
-     * Return the POST param $paramName is it exists, else null
-     */
-    public static function getPostParam($paramName)
+    public function getAllParams()
     {
-        return (isset($_POST[$paramName]) ? htmlspecialchars($_POST[$paramName]) : null);
+        return array_merge($this->_post, $this->_get, $this->_params);
     }
 
-    /**
-     * Return all the POST params
-     * @TODO : test
-     */
-    public static function getAllPostParams()
+    public function hasPostParam($param)
     {
-        if (self::$_post == null) {
-            self::$_post = array();
-            foreach ($_POST as $key => $value) {
-                self::$_post[$key] = htmlspecialchars($value);
-            }
+        return !empty($this->_post[$param]);
+    }
+
+    public function getPostParam($param)
+    {
+        if ($this->hasPostParam($param)) {
+            return $this->_post[$param];
         }
-        return self::$_post;
+        else {
+            return null;
+        }
     }
 
-    /**
-     * Return the GET param $paramName is it exists, else null
-     */
-    public static function getGetParam($paramName)
+    public function forward($module, $action, $params = array())
     {
-        return (isset($_GET[$paramName]) ? htmlspecialchars($_GET[$paramName]) : null);
+        $this->_dispatched = false;
+
+        $this->_params = array_merge($this->_params, $params);
+        $this->_params['module'] = $module;
+        $this->_params['action'] = $action;
+
     }
 
-    /**
-     * Return true is the GET param $paramName exists, else false
-     */
-    public static function hasGetParam($paramName)
+    public function isDispatched()
     {
-        return isset($_GET[$paramName]);
+        return $this->_dispatched;
     }
 
-    /**
-     * Return true is the GET param $paramName exists, else false
-     */
-    public static function hasPostParam($paramName)
+    public function setDispatch($dispatch)
     {
-        return isset($_POST[$paramName]);
-    }
-
-    /**
-     * Return all the GET params
-     */
-    public static function getAllGetParams()
-    {
-        return $_GET;
+        $this->_dispatched = $dispatch;
     }
 }

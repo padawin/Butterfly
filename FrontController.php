@@ -99,6 +99,13 @@ class Butterfly_FrontController
 
     /**
      *
+     * Instance of Butterfly_Http_Request
+     *
+     */
+    private $_request;
+
+    /**
+     *
      * Construct of the class
      * Set the class attribute $_layout with a new Layout
      *
@@ -154,59 +161,82 @@ class Butterfly_FrontController
      */
     public function run()
     {
-        try {
-            $this->_config = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV);
-            $this->_setIncludePath();
+        $this->_request = Butterfly_Http_Request::getInstance();
 
-            //load and execute each widgets
-            $this->_predispatchPlugins();
+        $loop = 0;
+        while (!$this->_request->isDispatched()) {
 
-            $this->_moduleParam = Butterfly_Http_Request::getParam( $this->_config->module_param, ucfirst($this->_config->default_module) );
-            $this->_actionParam = Butterfly_Http_Request::getParam( $this->_config->action_param, $this->_config->default_action );
+            $this->_request->setDispatch(true);
 
-            if (Butterfly_Http_Request::getParam('ajax')) {
-                $this->_layout->noRender();
+            try {
+                if ($loop == 0) {
+                    $this->_config = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV);
+                    $this->_setIncludePath();
+
+                    //load and execute each plugins
+                    $this->_predispatchPlugins();
+                }
+
+                $this->_moduleParam = ucfirst($this->_request->getParam($this->_config->module_param, ucfirst($this->_config->default_module)));
+                $this->_actionParam = $this->_request->getParam( $this->_config->action_param, $this->_config->default_action );
+
+
+                if (Butterfly_Http_Request::getInstance()->getParam('ajax')) {
+                    $this->_layout->noRender();
+                }
+
+                //load and execute each widgets
+                $this->_loadPlugins();
+
+                //load and execute the module
+                $this->_loadModule();
+
+                if ($this->_request->isDispatched()) {
+                    //load the theme and get styles and script sheets
+                    $this->_loadTheme();
+
+                    if ($this->_layout->getRender()) {
+                        //load and execute each widget
+                        $this->_loadWidgets();
+                    }
+
+                    //load the template
+                    $this->_loadTemplate();
+
+                    $this->render();
+                }
+            }
+            catch (Butterfly_Component_Module_Exception $te)
+            {
+                $this->forward('error', 'notfound');
+            }
+            catch (Butterfly_Component_Plugin_Exception $te)
+            {
+                Butterfly_Session::set('error', 'An exception occured during the widgets loading : <br />' . $te->getMessage());
+                $this->forward('error', 'other');
+            }
+            catch (Butterfly_Theme_Exception $te)
+            {
+                Butterfly_Session::set('error', 'An exception occured during the theme loading : <br />' . $te->getMessage());
+                $this->forward('error', 'other');
+            }
+            catch (Butterfly_Config_Exception $te)
+            {
+                Butterfly_Session::set('error', 'An exception occured during the config loading : <br />' . $te->getMessage());
+                $this->forward('error', 'other');
+            }
+            catch (Exception $te)
+            {
+                if (APPLICATION_ENV == 'development') {
+                    Butterfly_Session::set('error', 'An exception occured : <br />' . $te->getMessage());
+                }
+                else {
+                    Butterfly_Session::set('error', 'Le site est temporairement inaccessible, veuillez réessayer ultérieurement. Merci.');
+                }
+                $this->forward('error', 'other');
             }
 
-            //load and execute each widgets
-            $this->_loadPlugins();
-            //load and execute the module
-            $this->_loadModule();
-
-            //load the theme and get styles and script sheets
-            $this->_loadTheme();
-
-            if ($this->_layout->getRender()) {
-                //load and execute each widget
-                $this->_loadWidgets();
-            }
-
-            //load the template
-            $this->_loadTemplate();
-        }
-        catch (Butterfly_Component_Module_Exception $te)
-        {
-            $this->forward('error', 'notfound');
-        }
-        catch (Butterfly_Component_Plugin_Exception $te)
-        {
-            Butterfly_Session::set('error', 'An exception occured during the widgets loading : <br />' . $te->getMessage());
-            $this->forward('error', 'other');
-        }
-        catch (Butterfly_Theme_Exception $te)
-        {
-            Butterfly_Session::set('error', 'An exception occured during the theme loading : <br />' . $te->getMessage());
-            $this->forward('error', 'other');
-        }
-        catch (Butterfly_Config_Exception $te)
-        {
-            Butterfly_Session::set('error', 'An exception occured during the config loading : <br />' . $te->getMessage());
-            $this->forward('error', 'other');
-        }
-        catch (Exception $te)
-        {
-            Butterfly_Session::set('error', 'An exception occured : <br />' . $te->getMessage());
-            $this->forward('error', 'other');
+            $loop++;
         }
     }
 
@@ -473,56 +503,19 @@ class Butterfly_FrontController
      * @access public
      *
      */
-    public function forward($module, $action = '', $complement = '')
+    public function forward($module, $action = '', $params = array())
     {
-        $this->setRoad($module, $action, $complement);
-
-        try {
-            //load and execute the module
-            $this->_loadModule();
-
-            if ($this->_layout->getRender()) {
-                //load the theme and get styles and script sheets
-                $this->_loadTheme();
-                //load and execute each widget
-                $this->_loadWidgets();
-                //load the template
-                $this->_loadTemplate();
-            }
-
-            $this->render();
-        }
-        catch (Butterfly_Component_Module_Exception $te)
-        {
-            $this->forward('error', 'notfound');
-        }
-        catch (Butterfly_Component_Plugin_Exception $te)
-        {
-            echo 'An exception occured during the widgets loading : <br />';
-            echo $te->getMessage();
-        }
-        catch (Butterfly_View_Exception $te)
-        {
-            echo 'An exception occured during the view loading : <br />';
-            echo $te->getMessage();
-        }
-        catch (Butterfly_Theme_Exception $te)
-        {
-            echo 'An exception occured during the theme loading : <br />';
-            echo $te->getMessage();
-        }
-        catch (Exception $te)
-        {
-            echo 'An exception occured : <br />';
-            echo $te->getMessage();
-        }
-
-        exit(0);
+        $this->_widgets = array();
+        $this->_request->forward(
+            preg_replace('/[\s-_]/', '', $module),
+            preg_replace('/[\s-_]/', '', $action),
+            $params
+        );
     }
 
-    public function redirect($module = '', $action = '')
+    public function redirect($module = '', $action = '', $args = array())
     {
-        header( 'Location: ' . $this->_layout->url($module, $action));
+        header( 'Location: ' . $this->_layout->url($module, $action, $args));
         exit;
     }
 
