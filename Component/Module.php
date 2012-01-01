@@ -15,7 +15,7 @@ class Butterfly_Component_Module extends Butterfly_Component
      * Alias to do a forward in the module
      *
      */
-    protected function forward($module, $action = '', $complement = '')
+    protected function forward($module = '', $action = '', $complement = array())
     {
         Butterfly_FrontController::getInstance()->forward($module, $action, $complement);
     }
@@ -25,7 +25,7 @@ class Butterfly_Component_Module extends Butterfly_Component
      * Alias to do a redirect in the module
      *
      */
-    protected function redirect($module, $action = '', $complement = '')
+    protected function redirect($module = '', $action = '', $complement = array())
     {
         Butterfly_FrontController::getInstance()->redirect($module, $action, $complement);
     }
