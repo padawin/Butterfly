@@ -168,7 +168,7 @@ class Butterfly_NestedSet_Html
                 array(
                     $current->getPkName() => $current->getPkValue()
                 )
-            ) . '" onclick="return confirm(\'Voulez-vous vraiment supprimer cet album ?\');">' .
+            ) . '" onclick="return confirm(\'Voulez-vous vraiment supprimer cet élément ?\');">' .
             '<img src="/images/delete.png" alt="' . (
                 is_array($this->_options['deleteurl']) ?
                 $this->_options['deleteurl'][1] :
