@@ -86,7 +86,7 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
         $stmt = $this->getAdapter()->prepare('SELECT id_acl_resource FROM acl_resource_user WHERE id_acl_user = :user');
         $row = $stmt->execute(array('user' => $this->id_acl_user));
 
-        return $row == false ? false : true;
+        return $stmt->fetch() != false;
     }
 
     public function getRole()
