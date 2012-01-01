@@ -105,7 +105,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function __construct(){
+    protected function __construct(){
         $this->_layout = new Butterfly_Layout();
     }
 
@@ -218,7 +218,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _setIncludePath()
+    protected function _setIncludePath()
     {
         set_include_path(
         $this->_config->modules_path . PATH_SEPARATOR .
@@ -235,7 +235,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _loadPlugins()
+    protected function _loadPlugins()
     {
         $pluginsList = $this->_config->plugins_list;
         if (!empty($pluginsList)) {
@@ -258,7 +258,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _predispatchPlugins()
+    protected function _predispatchPlugins()
     {
         $pluginsList = $this->_config->plugins_list;
         if (!empty($pluginsList)) {
@@ -287,7 +287,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _loadModule()
+    protected function _loadModule()
     {
         //check if module name and action name are only [A-Za-z]
 
@@ -346,7 +346,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _loadTheme()
+    protected function _loadTheme()
     {
         //if current theme is in cookies
         if(!empty($_COOKIE['current_theme_' . $this->_config->id_site])){
@@ -373,7 +373,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _loadWidgets()
+    protected function _loadWidgets()
     {
         $w = $this->_theme->getWidgets();
 
@@ -423,7 +423,7 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    private function _loadTemplate()
+    protected function _loadTemplate()
     {
         $this->_layout->setBase($this->_config->themes_path . '/' . $this->_theme->getName() . '/');
         $this->_layout->setFile('template');
