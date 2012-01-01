@@ -30,12 +30,12 @@ class Butterfly_Acl_Role extends Butterfly_Db_NestedSet
             acl_resource_role rr
             INNER JOIN acl_role r ON
                 rr.id_acl_role = r.id_acl_role AND
-                acl_role_left >= :left AND acl_role_right <= :right
+                nestedset_left >= :left AND nestedset_right <= :right
         WHERE rr.id_acl_resource = :idResource');
 
-        $row = $stmt->execute(array(
-            'left' => $this->acl_role_left,
-            'right' => $this->acl_role_right,
+        $stmt->execute(array(
+            'left' => $this->nestedset_left,
+            'right' => $this->nestedset_right,
             'idResource' => $idResource));
 
         return $row == false ? false : true;
