@@ -29,8 +29,6 @@ abstract class Butterfly_Db_Abstract
         }
     }
 
-    abstract protected static function _getClass();
-
     /**
      *
      */
