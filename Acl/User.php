@@ -34,7 +34,7 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
         if ($acl != null && $acl['hash'] != null) {
             $user = self::loadByLogin($acl['acl_user_login']);
             //the connected used is correct
-            if ($user != null && $acl['hash'] == sha1($user->acl_user_passwd) && $_SERVER['REMOTE_ADDR'] == $user->ip_last_connexion) {
+            if ($user != null && $acl['hash'] == sha1($user->acl_user_passwd)) {
                 Butterfly_Session::regenerate();
                 return $user;
             }
