@@ -110,6 +110,11 @@ class Butterfly_View
         }
     }
 
+    public function __isset($key)
+    {
+        return $this->$key != NULL;
+    }
+
     /**
      *
      * clean output values
