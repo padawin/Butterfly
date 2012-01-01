@@ -132,10 +132,10 @@ abstract class Butterfly_Db_Abstract
         $j = array();
         foreach ($joins as $table => $join) {
             if (isset($join['on'])) {
-                $j[] = (isset($join['type']) ? $join['type'] : 'INNER') . ' JOIN ' . $table . ' ON ' . $join['on'];
+                $j[] = (isset($join['type']) ? $join['type'] : 'INNER') . " JOIN $table ON {$join['on']}";
             }
             elseif (isset($join['using'])) {
-                $j[] = (isset($join['type']) ? $join['type'] : 'INNER') . ' JOIN ' . $table . ' USING (' . $join['using'] . ')';
+                $j[] = (isset($join['type']) ? $join['type'] : 'INNER') . " JOIN $table USING ({$join['using']})";
             }
             if (count($j) > 0 && isset($join['fields'])) {
                 $f .= ', ' . $join['fields'];
