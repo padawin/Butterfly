@@ -20,7 +20,12 @@ abstract class Butterfly_Db_Abstract
     {
         if ($this->_db == null) {
             $db = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV)->db;
-            $this->_db = new PDO($db['sgbd'] . ':host=' . $db['host'] . ';dbname=' . $db['base'], $db['user'], $db['pass']);
+            try {
+                $this->_db = new PDO($db['sgbd'] . ':host=' . $db['host'] . ';dbname=' . $db['base'], $db['user'], $db['pass']);
+            }
+            catch (PDOException $e) {
+                Throw new Butterfly_Exception($e->getMessage());
+            }
         }
     }
 
