@@ -307,7 +307,7 @@ class Butterfly_FrontController
      *
      * Load the module from the request.
      * If the module exists, the controller name is defined.
-     *     If the controller exists, it is instanciated and the function init is launched.
+     *     If the controller exists, it is instanciated and init() is launched.
      *          Then, if the action is defined, the action method is launched if it exists
      *          and the view file is defined if it wasn't.
      *          If the action isn't defined, the default action is launched
@@ -484,7 +484,8 @@ class Butterfly_FrontController
      * @access public
      *
      */
-    public function render(){
+    public function render()
+    {
         if ($this->_layout->getRender()) {
             print($this->_layout->render());
         }
