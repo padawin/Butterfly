@@ -131,7 +131,7 @@ class Butterfly_NestedSet_Checker
                 ' . $this->_table . ' t1
                 INNER JOIN ' . $this->_table . ' t2 ON t1.nestedset_left < t2.nestedset_right AND t2.nestedset_left < t1.nestedset_right
         ';
-        echo $sql;die;
+        echo $sql;
     }
 
     public function checkOrder()
