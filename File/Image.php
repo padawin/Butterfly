@@ -13,6 +13,46 @@ class Butterfly_File_Image extends Butterfly_File
     static $allowedTypes = array('image/png', 'image/jpeg', 'image/gif');
     static $allowedExtentions = array('jpeg', 'jpg', 'png', 'gif');
 
+    public function rotate($angle, $newImagePath = '')
+    {
+        if ($newImagePath == '') {
+            $newImagePath = $this->_file;
+        }
+
+        $saveFunction = '';
+        switch ($this->getType()) {
+            case self::$allowedExtentions[Butterfly_File_Image::IMAGE_JPEG_EXT]:
+            case self::$allowedExtentions[Butterfly_File_Image::IMAGE_JPG_EXT]:
+            case self::$allowedTypes[Butterfly_File_Image::IMAGE_JPG]:
+                $srcImage = imagecreatefromjpeg($this->_file);
+                $saveFunction = 'imagejpeg';
+                break;
+            case self::$allowedExtentions[Butterfly_File_Image::IMAGE_PNG_EXT]:
+            case self::$allowedTypes[Butterfly_File_Image::IMAGE_PNG]:
+                $srcImage = imagecreatefrompng($this->_file);
+                $saveFunction = 'imagepng';
+                break;
+            case self::$allowedExtentions[Butterfly_File_Image::IMAGE_GIF_EXT]:
+            case self::$allowedTypes[Butterfly_File_Image::IMAGE_GIF]:
+                $srcImage = imagecreatefromgif($this->_file);
+                $saveFunction = 'imagegif';
+                break;
+            default:
+                throw new Exception('Unknown image type');
+                break;
+        }
+
+        $newImage = imagerotate($srcImage, $angle, 0);
+
+        $saveFunction($newImage, $newImagePath);
+
+        //delete tmp images
+        imagedestroy($newImage);
+        imagedestroy($srcImage);
+
+        $this->_file = $newImagePath;
+    }
+
     /**
      *
      * Resize the picture with the given options. The ratio between
