@@ -116,6 +116,7 @@ class Butterfly_NestedSet_Html
                 $this->_options[$urlName][0] :
                 $this->_options[$urlName];
 
+        $url = urldecode($url);
         foreach ($params as $paramName => $paramValue) {
             $url = str_replace(':' . $paramName, $paramValue, $url);
         }
