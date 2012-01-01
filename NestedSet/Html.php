@@ -127,9 +127,10 @@ class Butterfly_NestedSet_Html
     protected function _getChangeParentHTML($current)
     {
         $parentsList = array();
+        $parent = $current->getParent();
         foreach ($this->_nestedSetCollection as $item) {
             if ($item->getPkValue() != $current->getPkValue()) {
-                $directParent = $current->id_parent == $item->getPkValue();
+                $directParent = $parent && $parent->getPkValue() == $item->getPkValue();
 
                 $parentsList[$item->getPkValue()] = '<option value="' . $this->_translateUrl(
                     'changeparenturl',
