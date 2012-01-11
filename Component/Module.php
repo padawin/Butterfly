@@ -59,4 +59,9 @@ class Butterfly_Component_Module extends Butterfly_Component
     {
         Butterfly_FrontController::getInstance()->addWidget($widget, $area, $needAuth);
     }
+
+    public function removeWidget($widget, $area)
+    {
+        Butterfly_FrontController::getInstance()->removeWidget($widget, $area);
+    }
 }
