@@ -82,6 +82,16 @@ class Butterfly_FrontController
 
     /**
      *
+     * Widgets That must not be displayed
+     *
+     * @var Array of String
+     * @access private
+     *
+     */
+    private $_widgetsToIgnore = array();
+
+    /**
+     *
      * Widgets of the current Theme
      *
      * @var Array of Component_Widget
@@ -418,6 +428,11 @@ class Butterfly_FrontController
         foreach ($w as $areaName => $widgets) {
             $nbWidget = count($widgets);
             for ($i = 0 ; $i < $nbWidget ; $i++) {
+                if (isset($this->_widgetsToIgnore[$areaName]) && in_array($widgets[$i]['name'], $this->_widgetsToIgnore[$areaName])) {
+                    unset($w[$areaName][$i]);
+                    continue;
+                }
+
                 if ($widgets[$i]['needAuth'] != true || ($widgets[$i]['needAuth'] == true && Butterfly_Acl_User::getConnectedUser() != null)) {
                     $widgetName = $widgets[$i]['name'] . '_WidgetController';
                     if (!is_file($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/view.php')) {
@@ -545,10 +560,21 @@ class Butterfly_FrontController
         if (!isset($this->_widgets[$area])) {
             $this->_widgets[$area] = array();
         }
+
         $this->_widgets[$area][] = array(
             'name' => $widgetName,
             'needAuth' => $needAuth
         );
+    }
+
+    public function removeWidget($widgetName, $area)
+    {
+        if (!isset($this->_widgetsToIgnore[$area])) {
+            $this->_widgetsToIgnore[$area] = array();
+        }
+
+        $this->_widgetsToIgnore[$area][] = $widgetName;
+
     }
 
     public function getModule()
