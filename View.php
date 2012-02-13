@@ -208,6 +208,6 @@ class Butterfly_View
 
     public function strToUrl($string)
     {
-        return urlencode(iconv(mb_detect_encoding($string), 'ASCII//TRANSLIT//IGNORE', $string));
+        return urlencode($string);
     }
 }
