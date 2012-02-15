@@ -22,8 +22,7 @@ class Butterfly_Acl_Role extends Butterfly_Db_NestedSet
 
     public function hasAccessToResource($idResource)
     {
-        //$stmt = $this->getAdapter()->prepare('SELECT id_acl_resource FROM acl_resource_role WHERE id_acl_role = :role');
-        $stmt = $this->getAdapter()->prepare('
+        $stmt = self::getDbAdapter()->prepare('
         SELECT
             id_acl_resource
         FROM

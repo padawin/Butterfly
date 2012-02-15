@@ -83,7 +83,7 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 
     public function hasAccessToResource($idResource)
     {
-        $stmt = $this->getAdapter()->prepare('SELECT id_acl_resource FROM acl_resource_user WHERE id_acl_user = :user');
+        $stmt = self::getDbAdapter()->prepare('SELECT id_acl_resource FROM acl_resource_user WHERE id_acl_user = :user');
         $row = $stmt->execute(array('user' => $this->id_acl_user));
 
         return $stmt->fetch() != false;

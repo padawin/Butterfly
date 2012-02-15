@@ -93,8 +93,6 @@ abstract class Butterfly_Db_NestedSet extends Butterfly_Db_Abstract
      */
     public function move($reference, $position = self::POSITION_APPEND)
     {
-        $this->getAdapter();
-
         if ($this->nestedset_left < $reference->nestedset_left && $this->nestedset_right > $reference->nestedset_right) {
             return false;
         }
@@ -123,7 +121,7 @@ abstract class Butterfly_Db_NestedSet extends Butterfly_Db_Abstract
             'left_this' => $this->nestedset_left,
             'right_this' => $this->nestedset_right
         );
-        $stmtMoveThis = $this->_db->prepare($sqlMoveThis);
+        $stmtMoveThis = self::getDbAdapter()->prepare($sqlMoveThis);
         $stmtMoveThis->execute($valuesMoveThis);
 
         //----------------------------------------------
@@ -141,7 +139,7 @@ abstract class Butterfly_Db_NestedSet extends Butterfly_Db_Abstract
             'old_right' => $this->nestedset_right
         );
 
-        $stmtRight = $this->_db->prepare($sqlRight);
+        $stmtRight = self::getDbAdapter()->prepare($sqlRight);
         $stmtRight->execute($valuesRight);
 
         //then left
@@ -156,7 +154,7 @@ abstract class Butterfly_Db_NestedSet extends Butterfly_Db_Abstract
             'old_right' => $this->nestedset_right
         );
 
-        $stmtLeft = $this->_db->prepare($sqlLeft);
+        $stmtLeft = self::getDbAdapter()->prepare($sqlLeft);
         $stmtLeft->execute($valuesLeft);
 
         //update object
@@ -272,11 +270,11 @@ abstract class Butterfly_Db_NestedSet extends Butterfly_Db_Abstract
         }
 
         //move left
-        $stmt = $this->_db->prepare($sqlLeft);
+        $stmt = self::getDbAdapter()->prepare($sqlLeft);
         $stmt->execute($valuesLeft);
 
         //then right
-        $stmt = $this->_db->prepare($sqlRight);
+        $stmt = self::getDbAdapter()->prepare($sqlRight);
         $stmt->execute($valuesRight);
 
         return $delta;
