@@ -56,9 +56,11 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 
     public static function loadByLoginAndPassword($login, $passwd)
     {
-        return self::_fetchOne('Butterfly_Acl_User',
-                                'acl_user_login = :login AND acl_user_passwd = :passwd',
-                                array(':login' => $login, 'passwd' => sha1($passwd)));
+        return self::_fetchOne(
+            'Butterfly_Acl_User',
+            'acl_user_login = :login AND acl_user_passwd = :passwd',
+            array(':login' => $login, 'passwd' => sha1($passwd))
+        );
     }
 
     public function connect()
