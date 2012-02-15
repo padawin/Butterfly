@@ -11,23 +11,7 @@ abstract class Butterfly_Db_Abstract
 
     protected $_hasAndBelongsToMany = array();
 
-    protected $_db;
-
-    /*
-     * Create a connection to the database
-     */
-    protected function _connect()
-    {
-        if ($this->_db == null) {
-            $db = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV)->db;
-            try {
-                $this->_db = new PDO($db['sgbd'] . ':host=' . $db['host'] . ';dbname=' . $db['base'], $db['user'], $db['pass']);
-            }
-            catch (PDOException $e) {
-                Throw new Butterfly_Exception($e->getMessage());
-            }
-        }
-    }
+    protected static $_db;
 
     /**
      *
@@ -80,8 +64,6 @@ abstract class Butterfly_Db_Abstract
 
     protected function _fetch($class, $where = 'true', $values = array(), $additionnals = '', $joins = array())
     {
-        $this->_connect();
-
         $query = $this->_getQuery($where, $values, $additionnals, $joins);
 
         $result = array();
@@ -149,7 +131,7 @@ abstract class Butterfly_Db_Abstract
         $sql = 'SELECT '. $f .' FROM ' . $this->_tableName . ' ' . implode(' ', $j) . $where . ' ' . $additionnals;
         unset($f);
 
-        $stmt = $this->_db->prepare($sql);
+        $stmt = static::getDbAdapter()->prepare($sql);
         $stmt->execute($values);
 
         if ($stmt->errorCode() != '00000') {
@@ -172,19 +154,20 @@ abstract class Butterfly_Db_Abstract
         }
     }
 
-    public function getAdapter()
-    {
-        if ($this->_db == null) {
-            $this->_connect();
-        }
-
-        return $this->_db;
-    }
-
     public static function getDbAdapter()
     {
-        $db = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV)->db;
-        return new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['base'], $db['user'], $db['pass']);
+        if (empty(static::$_db)) {
+            $db = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV)->db;
+
+            try {
+                static::$_db  = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['base'], $db['user'], $db['pass']);
+            }
+            catch (PDOException $e) {
+                Throw new Butterfly_Exception($e->getMessage());
+            }
+        }
+
+        return static::$_db;
     }
 
     /**
@@ -210,15 +193,14 @@ abstract class Butterfly_Db_Abstract
             $where .= ($where == '' ? '' : ' AND ') . $pk[0] . ' = :id';
             $params = array('id' => $id);
         }
-        $object = self::_fetchOne($class, $where, $params);
+        $object = static::_fetchOne($class, $where, $params);
 
         return $object;
     }
 
     public function save()
     {
-        $this->_connect();
-        $this->_db->beginTransaction();
+        static::getDbAdapter()->beginTransaction();
 
         $insert = false;
         foreach ($this->_pk as $value) {
@@ -243,7 +225,7 @@ abstract class Butterfly_Db_Abstract
 
             $params = array('object' => $this->getPkValue());
 
-            $stmt = $this->_db->prepare($sqlDelete);
+            $stmt = static::getDbAdapter()->prepare($sqlDelete);
             $stmt->execute($params);
 
             $emptyObject = new $class;
@@ -262,7 +244,7 @@ abstract class Butterfly_Db_Abstract
                         (' . $this->getPkName() . ', ' . $emptyObject->getPkName() . ', date_creation, date_update)
                         VALUES ' . implode(', ', $sqlValues);
 
-                $stmt = $this->_db->prepare($sqlInsert);
+                $stmt = static::getDbAdapter()->prepare($sqlInsert);
                 $stmt->execute($paramsInsert);
 
                 if ($stmt->errorCode() != '00000') {
@@ -276,10 +258,10 @@ abstract class Butterfly_Db_Abstract
         }
 
         if ($return) {
-            $this->_db->commit();
+            static::getDbAdapter()->commit();
         }
         else {
-            $this->_db->rollback();
+            static::getDbAdapter()->rollback();
         }
 
         return $return;
@@ -318,11 +300,11 @@ abstract class Butterfly_Db_Abstract
         (' . implode(', ', $fields) . ')
         VALUES (' . implode(', ', $valuesKeys) . ')';
 
-        $stmt = $this->_db->prepare($sql);
+        $stmt = static::getDbAdapter()->prepare($sql);
         $stmt->execute($values);
 
         //@TODO the sequence must be added for pgsql...
-        $this->{$this->getPkName()} = $this->_db->lastInsertId();
+        $this->{$this->getPkName()} = static::getDbAdapter()->lastInsertId();
 
         if ($stmt->errorCode() != '00000') {
             $errorInfo = $stmt->errorInfo();
@@ -363,7 +345,7 @@ abstract class Butterfly_Db_Abstract
         SET ' . implode(', ', $fields) . '
         WHERE ' . implode(' AND ', $pk);
 
-        $stmt = $this->_db->prepare($sql);
+        $stmt = static::getDbAdapter()->prepare($sql);
         $stmt->execute($values);
 
         if ($stmt->errorCode() != '00000') {
@@ -376,8 +358,6 @@ abstract class Butterfly_Db_Abstract
 
     public function delete()
     {
-        $this->_connect();
-
         $pk = array();
         $values = array();
         foreach ($this->_pk as $key => $value) {
@@ -387,7 +367,7 @@ abstract class Butterfly_Db_Abstract
         $sql = 'DELETE FROM ' . $this->_tableName . '
         WHERE ' . implode(' AND ', $pk);
 
-        $stmt = $this->_db->prepare($sql);
+        $stmt = static::getDbAdapter()->prepare($sql);
         $stmt->execute($values);
 
         if ($stmt->errorCode() != '00000') {
