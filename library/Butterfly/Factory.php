@@ -19,19 +19,37 @@ class Butterfly_Factory
 
     public static function create($className)
     {
-        foreach (self::$_namespace as $namespace) {
-            try {
-                $class = "{$namespace}_{$className}";
-                $object = new $class;
-                return $object;
-            }
-            catch (Exception $e)
-            {
-                continue;
-            }
+        return self::_loadClass($className, true);
+    }
 
-            return null;
+    public static function getClass($className)
+    {
+        return self::_loadClass($className, false);
+    }
+
+    protected function _loadClass($className, $instantiate)
+    {
+        try {
+            if (class_exists($className)) {
+                return $instantiate ? new $className : $className;
+            }
         }
+        catch (Exception $e) {
+            foreach (self::$_namespaces as $namespace) {
+                try {
+                    $class = "{$namespace}_{$className}";
+                    if (class_exists($class)) {
+                        return $instantiate ? new $class : $class;
+                    }
+                }
+                catch (Exception $e)
+                {
+                    continue;
+                }
+            }
+        }
+
+        throw new Exception('Unknown class');
     }
 
     public static function cleanNamespace($className)
