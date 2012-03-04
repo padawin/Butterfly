@@ -194,7 +194,7 @@ class Butterfly_FrontController
                 $this->_moduleParam = ucfirst($this->_request->getParam($this->_config->module_param, ucfirst($this->_config->default_module)));
                 $this->_actionParam = $this->_request->getParam( $this->_config->action_param, $this->_config->default_action );
 
-
+                //disable layout render if ajax
                 if ($this->_request->getParam('ajax')) {
                     $this->_layout->noRender();
                 }
@@ -286,7 +286,7 @@ class Butterfly_FrontController
      */
     protected function _predispatchPlugins()
     {
-        $this->_executePluginStep('predispatch');
+        $this->_executePluginsStep('predispatch');
     }
 
     /**
@@ -299,7 +299,7 @@ class Butterfly_FrontController
      */
     protected function _loadPlugins()
     {
-        $this->_executePluginStep('execute');
+        $this->_executePluginsStep('execute');
     }
 
     /**
@@ -307,14 +307,17 @@ class Butterfly_FrontController
      *
      * @param string $step name of the method to run
      */
-    protected function _executePluginStep($step)
+    protected function _executePluginsStep($step)
     {
         $pluginsList = $this->_config->plugins_list;
-        if (!empty($pluginsList)) {
-            $pluginsList = explode(',', $pluginsList);
-            $nbPlugins = count($pluginsList);
-            for ($p = 0 ; $p < $nbPlugins ; $p++) {
-                $plugin = Butterfly_Factory::getClass(trim($pluginsList[$p]) . '_Plugin');
+        if (empty($pluginsList)) {
+            return;
+        }
+
+        $pluginsList = explode(',', $pluginsList);
+        $nbPlugins = count($pluginsList);
+        for ($p = 0 ; $p < $nbPlugins ; $p++) {
+            $plugin = Butterfly_Factory::getClass(trim($pluginsList[$p]) . '_Plugin');
             if (in_array('Butterfly_Plugin', class_parents($plugin))) {
                 if (method_exists($plugin, $step)) {
                     $plugin::$step();
@@ -468,8 +471,8 @@ class Butterfly_FrontController
                         $widgets[$i]['needAuth'] &&
                         call_user_func(array(Butterfly_Factory::getClass('Acl_User'), 'getConnectedUser')) != null)
                 ) {
-                    if (!is_file($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/view.php')) {
-                        throw new Butterfly_Component_Widget_Exception('The view file for the widget ' . $widgets[$i]['name'] . ' does not exist');
+                    if (!is_file("{$this->_config->widgets_path}/{$widgets[$i]['name']}/view.php")) {
+                        throw new Butterfly_Component_Widget_Exception("The view file for the widget {$widgets[$i]['name']} does not exist");
                     }
                     else {
                         try {
@@ -568,12 +571,6 @@ class Butterfly_FrontController
             preg_replace('/[\s-_]/', '', $action),
             $params
         );
-    }
-
-    public function redirect($module = '', $action = '', $args = array())
-    {
-        header( 'Location: ' . $this->_layout->url($module, $action, $args));
-        exit;
     }
 
     /**
