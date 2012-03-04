@@ -286,7 +286,7 @@ class Butterfly_FrontController
      */
     protected function _predispatchPlugins()
     {
-        $this->_executePluginStep('predispatch');
+        $this->_executePluginsStep('predispatch');
     }
 
     /**
@@ -299,7 +299,7 @@ class Butterfly_FrontController
      */
     protected function _loadPlugins()
     {
-        $this->_executePluginStep('execute');
+        $this->_executePluginsStep('execute');
     }
 
     /**
@@ -307,7 +307,7 @@ class Butterfly_FrontController
      *
      * @param string $step name of the method to run
      */
-    protected function _executePluginStep($step)
+    protected function _executePluginsStep($step)
     {
         $pluginsList = $this->_config->plugins_list;
         if (!empty($pluginsList)) {
