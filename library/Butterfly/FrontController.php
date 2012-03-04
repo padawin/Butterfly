@@ -471,8 +471,8 @@ class Butterfly_FrontController
                         $widgets[$i]['needAuth'] &&
                         call_user_func(array(Butterfly_Factory::getClass('Acl_User'), 'getConnectedUser')) != null)
                 ) {
-                    if (!is_file($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/view.php')) {
-                        throw new Butterfly_Component_Widget_Exception('The view file for the widget ' . $widgets[$i]['name'] . ' does not exist');
+                    if (!is_file("{$this->_config->widgets_path}/{$widgets[$i]['name']}/view.php")) {
+                        throw new Butterfly_Component_Widget_Exception("The view file for the widget {$widgets[$i]['name']} does not exist");
                     }
                     else {
                         try {
