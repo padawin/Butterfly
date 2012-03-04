@@ -112,4 +112,10 @@ class Butterfly_Http_Request
     {
         $this->_dispatched = $dispatch;
     }
+
+    public function redirect($url = '')
+    {
+        header( "Location: {$url}");
+        exit;
+    }
 }
