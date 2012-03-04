@@ -310,11 +310,14 @@ class Butterfly_FrontController
     protected function _executePluginsStep($step)
     {
         $pluginsList = $this->_config->plugins_list;
-        if (!empty($pluginsList)) {
-            $pluginsList = explode(',', $pluginsList);
-            $nbPlugins = count($pluginsList);
-            for ($p = 0 ; $p < $nbPlugins ; $p++) {
-                $plugin = Butterfly_Factory::getClass(trim($pluginsList[$p]) . '_Plugin');
+        if (empty($pluginsList)) {
+            return;
+        }
+
+        $pluginsList = explode(',', $pluginsList);
+        $nbPlugins = count($pluginsList);
+        for ($p = 0 ; $p < $nbPlugins ; $p++) {
+            $plugin = Butterfly_Factory::getClass(trim($pluginsList[$p]) . '_Plugin');
             if (in_array('Butterfly_Plugin', class_parents($plugin))) {
                 if (method_exists($plugin, $step)) {
                     $plugin::$step();
