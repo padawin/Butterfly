@@ -123,7 +123,7 @@ class Butterfly_FrontController
      *
      */
     protected function __construct(){
-        $this->_layout = new Butterfly_Layout();
+        $this->_layout = Butterfly_Factory::create('Layout');
     }
 
     /**
@@ -139,7 +139,7 @@ class Butterfly_FrontController
     public static function getInstance()
     {
         if (self::$_instance == null) {
-            self::$_instance = new self;
+            self::$_instance = new static;
         }
 
         return self::$_instance;
@@ -171,7 +171,9 @@ class Butterfly_FrontController
      */
     public function run()
     {
-        $this->_request = Butterfly_Http_Request::getInstance();
+        $requestClass = Butterfly_Factory::getClass('Http_Request');
+        $this->_setRequest($requestClass::getInstance());
+        unset($requestClass);
 
         $loop = 0;
         while (!$this->_request->isDispatched()) {
@@ -180,7 +182,9 @@ class Butterfly_FrontController
 
             try {
                 if ($loop == 0) {
-                    $this->_config = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV);
+                    $configClass = Butterfly_Factory::getClass('Config_Ini');
+                    $this->_setConfig($configClass::load(CONFIG_FILE, APPLICATION_ENV));
+
                     $this->_setIncludePath();
 
                     //load and execute each plugins
@@ -191,7 +195,7 @@ class Butterfly_FrontController
                 $this->_actionParam = $this->_request->getParam( $this->_config->action_param, $this->_config->default_action );
 
 
-                if (Butterfly_Http_Request::getInstance()->getParam('ajax')) {
+                if ($this->_request->getParam('ajax')) {
                     $this->_layout->noRender();
                 }
 
@@ -237,17 +241,22 @@ class Butterfly_FrontController
             }
             catch (Exception $te)
             {
-                if (APPLICATION_ENV == 'development') {
-                    Butterfly_Session::set('error', 'An exception occured : <br />' . $te->getMessage());
-                }
-                else {
-                    Butterfly_Session::set('error', 'Le site est temporairement inaccessible, veuillez réessayer ultérieurement. Merci.');
-                }
+                Butterfly_Session::set('error', 'An exception occured : <br />' . $te->getMessage());
                 $this->forward('error', 'other');
             }
 
             $loop++;
         }
+    }
+
+    protected function _setRequest(Butterfly_Http_Request $request)
+    {
+        $this->_request = $request;
+    }
+
+    protected function _setConfig(Butterfly_Config $config)
+    {
+        $this->_config = $config;
     }
 
     /**
@@ -270,29 +279,6 @@ class Butterfly_FrontController
     /**
      *
      * Method to get the plugins list from the config file, load and
-     * execute them.
-     *
-     * @access private
-     *
-     */
-    protected function _loadPlugins()
-    {
-        $pluginsList = $this->_config->plugins_list;
-        if (!empty($pluginsList)) {
-            $pluginsList = explode(',', $pluginsList);
-            $nbPlugins = count($pluginsList);
-            for ($p = 0 ; $p < $nbPlugins ; $p++) {
-                $plugin = trim($pluginsList[$p]) . '_Plugin';
-                if (method_exists($plugin, 'execute')) {
-                    $plugin::execute();
-                }
-            }
-        }
-    }
-
-    /**
-     *
-     * Method to get the plugins list from the config file, load and
      * predispatch them.
      *
      * @access private
@@ -300,15 +286,42 @@ class Butterfly_FrontController
      */
     protected function _predispatchPlugins()
     {
+        $this->_executePluginStep('predispatch');
+    }
+
+    /**
+     *
+     * Method to get the plugins list from the config file, load and
+     * execute them.
+     *
+     * @access private
+     *
+     */
+    protected function _loadPlugins()
+    {
+        $this->_executePluginStep('execute');
+    }
+
+    /**
+     * common process to run all the plugins.
+     *
+     * @param string $step name of the method to run
+     */
+    protected function _executePluginStep($step)
+    {
         $pluginsList = $this->_config->plugins_list;
         if (!empty($pluginsList)) {
             $pluginsList = explode(',', $pluginsList);
             $nbPlugins = count($pluginsList);
             for ($p = 0 ; $p < $nbPlugins ; $p++) {
-                $plugin = trim($pluginsList[$p]) . '_Plugin';
-                if (method_exists($plugin, 'predispatch')) {
-                    $plugin::predispatch();
+                $plugin = Butterfly_Factory::getClass(trim($pluginsList[$p]) . '_Plugin');
+            if (in_array('Butterfly_Plugin', class_parents($plugin))) {
+                if (method_exists($plugin, $step)) {
+                    $plugin::$step();
                 }
+            }
+            else {
+                throw new Butterfly_Exception('The plugins must extend Butterfly_Plugin class');
             }
         }
     }
@@ -337,20 +350,20 @@ class Butterfly_FrontController
             throw new Butterfly_Component_Module_Exception('The action name is not correct');
         }
 
-        $controllerName = $this->_moduleParam . '_Controller';
-
         if (!is_dir($this->_config->modules_path . '/' . $this->_moduleParam)) {
             throw new Butterfly_Component_Module_Exception('The module does not exist');
         }
 
         //the controller exists
-        if (is_file($this->_config->modules_path . '/' . $this->_moduleParam . '/Controller.php')) {
-            $this->_module = new $controllerName($this->_layout);
-            $this->_module->init();
+        try {
+            $controllerName = Butterfly_Factory::getClass($this->_moduleParam . '_Controller');
         }
-        else {
-            $this->_module = new Butterfly_Component_Module($this->_layout);
+        //the class does not exist, create generic controller
+        catch (Exception $e) {
+            $controllerName = Butterfly_Factory::getClass('Component_Module');
         }
+        $this->_setModule(new $controllerName($this->_layout));
+        $this->_module->init();
 
         $this->_module->setViewBase($this->_config->modules_path . '/' . $this->_moduleParam . '/views/');
 
@@ -378,6 +391,11 @@ class Butterfly_FrontController
         }
     }
 
+    protected function _setModule(Butterfly_Component_Module $module)
+    {
+        $this->_module = $module;
+    }
+
     /**
      *
      * Load the current theme from the cookies if it exists, else load the current theme
@@ -388,13 +406,19 @@ class Butterfly_FrontController
      */
     protected function _loadTheme()
     {
+        $themeClass = Butterfly_Factory::getClass('Theme');
+
         //if current theme is in cookies
-        if(!empty($_COOKIE['current_theme_' . $this->_config->id_site])){
-            $this->_theme = Butterfly_Theme::loadById($_COOKIE['current_theme']);
+        if (!empty($_COOKIE['current_theme_' . $this->_config->id_site])) {
+            $method = 'loadById';
+            $id = $_COOKIE['current_theme'];
         }
         else {
-            $this->_theme = Butterfly_Theme::loadCurrent($this->_config->id_site);
+            $method = 'loadCurrent';
+            $id = $this->_config->id_site;
         }
+
+        $this->_setTheme($themeClass::$method($id));
 
         if ($this->_theme) {
             $this->_theme->parseXml();
@@ -402,6 +426,11 @@ class Butterfly_FrontController
         else {
             throw new Exception('No Theme found');
         }
+    }
+
+    protected function _setTheme(Butterfly_Theme $theme)
+    {
+        $this->_theme = $theme;
     }
 
     /**
@@ -433,23 +462,25 @@ class Butterfly_FrontController
                     continue;
                 }
 
-                if ($widgets[$i]['needAuth'] != true || ($widgets[$i]['needAuth'] == true && Butterfly_Acl_User::getConnectedUser() != null)) {
-                    $widgetName = $widgets[$i]['name'] . '_WidgetController';
+                if (
+                    empty($widgets[$i]['needAuth']) ||
+                    (
+                        $widgets[$i]['needAuth'] &&
+                        call_user_func(array(Butterfly_Factory::getClass('Acl_User'), 'getConnectedUser')) != null)
+                ) {
                     if (!is_file($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/view.php')) {
                         throw new Butterfly_Component_Widget_Exception('The view file for the widget ' . $widgets[$i]['name'] . ' does not exist');
                     }
                     else {
-                        if (is_file($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/WidgetController.php')) {
-                            $w[$areaName][$i] = new $widgetName($this->_layout, $widgets[$i]['name']);
-                            $w[$areaName][$i]->setViewBase($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/');
-                            $w[$areaName][$i]->setView('view');
-                            $w[$areaName][$i]->build();
+                        try {
+                            $widgetName = Butterfly_Factory::getClass($widgets[$i]['name'] . '_WidgetController');
                         }
-                        else {
-                            $w[$areaName][$i] = new Butterfly_Component_Widget($this->_layout, $widgets[$i]['name']);
-                            $w[$areaName][$i]->setViewBase($this->_config->widgets_path . '/' . $widgets[$i]['name'] . '/');
-                            $w[$areaName][$i]->setView('view');
+                        catch (Exception $e) {
+                            $widgetName = Butterfly_Factory::getClass('Component_Widget');
                         }
+
+                        $w[$areaName][$i] = new $widgetName($this->_layout, $widgets[$i]['name']);
+                        $this->_buildWidget($w[$areaName][$i], $widgets[$i]['name']);
                     }
                 }
                 else {
@@ -458,6 +489,16 @@ class Butterfly_FrontController
             }
         }
         $this->_widgets = $w;
+    }
+
+    protected function _buildWidget(Butterfly_Component_Widget &$widget, $name)
+    {
+        $widget->setViewBase($this->_config->widgets_path . '/' . $name . '/');
+        $widget->setView('view');
+
+        if (method_exists($widget, 'build')) {
+            $widget->build();
+        }
     }
 
     /**
