@@ -122,7 +122,8 @@ class Butterfly_FrontController
      * @access private
      *
      */
-    protected function __construct(){
+    protected function __construct()
+    {
         $this->_layout = Butterfly_Factory::create('Layout');
     }
 
