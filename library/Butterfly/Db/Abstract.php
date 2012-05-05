@@ -326,7 +326,7 @@ abstract class Butterfly_Db_Abstract
         }
 
         foreach ($this->_fks as $key => $infos) {
-            if (isset($infos['value'])) {
+            if (array_key_exists('value', $infos)) {
                 $fields[] = $key . ' = :' . $key;
                 $values[':' . $key] = $infos['value'];
             }
