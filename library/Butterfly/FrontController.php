@@ -410,19 +410,21 @@ class Butterfly_FrontController
      */
     protected function _loadTheme()
     {
-        $themeClass = Butterfly_Factory::getClass('Theme');
+        if (empty($this->_theme)) {
+            $themeClass = Butterfly_Factory::getClass('Theme');
 
-        //if current theme is in cookies
-        if (!empty($_COOKIE['current_theme_' . $this->_config->id_site])) {
-            $method = 'loadById';
-            $id = $_COOKIE['current_theme'];
-        }
-        else {
-            $method = 'loadCurrent';
-            $id = $this->_config->id_site;
-        }
+            //if current theme is in cookies
+            if (!empty($_COOKIE['current_theme_' . $this->_config->id_site])) {
+                $method = 'loadById';
+                $id = $_COOKIE['current_theme'];
+            }
+            else {
+                $method = 'loadCurrent';
+                $id = $this->_config->id_site;
+            }
 
-        $this->_setTheme($themeClass::$method($id));
+            $this->setTheme($themeClass::$method($id));
+        }
 
         if ($this->_theme) {
             $this->_theme->parseXml();
@@ -432,7 +434,7 @@ class Butterfly_FrontController
         }
     }
 
-    protected function _setTheme(Butterfly_Theme $theme)
+    public function setTheme(Butterfly_Theme $theme)
     {
         $this->_theme = $theme;
     }
