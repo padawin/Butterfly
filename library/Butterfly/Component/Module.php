@@ -27,7 +27,7 @@ class Butterfly_Component_Module extends Butterfly_Component
      */
     protected function redirect($module = '', $action = '', $complement = array())
     {
-        Butterfly_FrontController::getInstance()->redirect($module, $action, $complement);
+        Butterfly_Http_Request::getInstance()->redirect($this->_view->url($module, $action, $complement));
     }
 
     /**
