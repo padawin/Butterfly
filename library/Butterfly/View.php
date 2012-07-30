@@ -173,7 +173,7 @@ class Butterfly_View
         if (is_array($get)) {
             $getString = array();
             foreach ($get as $param => $value) {
-                $getString[] = $this->strToUrl($param) . '/' . $this->strToUrl($value);
+                $getString[] = self::strToUrl($param) . '/' . $this->strToUrl($value);
             }
             $getString = implode('/', $getString);
         }
@@ -206,7 +206,7 @@ class Butterfly_View
         echo $string;
     }
 
-    public function strToUrl($string)
+    public static function strToUrl($string)
     {
         return urlencode($string);
     }
