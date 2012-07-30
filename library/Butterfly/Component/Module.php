@@ -22,6 +22,16 @@ class Butterfly_Component_Module extends Butterfly_Component
 
     /**
      *
+     * Alias to do a redirect in the module
+     *
+     */
+    protected function redirect($module = '', $action = '', $complement = array())
+    {
+        Butterfly_FrontController::getInstance()->redirect($module, $action, $complement);
+    }
+
+    /**
+     *
      * Add a style sheet to the page
      *
      */

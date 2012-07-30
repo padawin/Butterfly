@@ -576,6 +576,12 @@ class Butterfly_FrontController
         );
     }
 
+    public function redirect($module = '', $action = '', $args = array())
+    {
+        header( 'Location: ' . $this->_layout->url($module, $action, $args));
+        exit;
+    }
+
     /**
      *
      * Set the module name, action name and complementary parameter
