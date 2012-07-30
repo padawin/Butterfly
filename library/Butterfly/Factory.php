@@ -49,7 +49,7 @@ class Butterfly_Factory
             }
         }
 
-        throw new Exception('Unknown class');
+        throw new Exception("Unknown class {$className}");
     }
 
     public static function cleanNamespace($className)
