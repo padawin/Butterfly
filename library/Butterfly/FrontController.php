@@ -177,7 +177,7 @@ class Butterfly_FrontController
         unset($requestClass);
 
         $loop = 0;
-        while (!$this->_request->isDispatched()) {
+        while (!$this->_request->isDispatched() && $loop < 5) {
 
             $this->_request->setDispatch(true);
 
@@ -247,6 +247,10 @@ class Butterfly_FrontController
             }
 
             $loop++;
+        }
+
+        if (!$this->_request->isDispatched()) {
+            throw new Exception("Infinite loop : {$te->getMessage()}");
         }
     }
 
