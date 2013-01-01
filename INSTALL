@@ -1,0 +1,100 @@
+#!/bin/bash
+
+scriptPath=$(readlink -f $(dirname $0))
+
+read -p "Project Name ? " PROJECTNAME
+
+[ -d "$PROJECTNAME" ] && echo "A project with this name already exist" >&2 && exit 1
+
+mkdir $PROJECTNAME
+projectPath=$(readlink -f $PROJECTNAME)
+cd $projectPath
+mkdir library
+
+cd library
+
+butterflyPath=''
+while [ -z $butterflyPath ] || [ ! -d $butterflyPath ]
+do
+    read -ep "Butterfly Path ? " butterflyPath
+done
+
+useDB=''
+while [ "$useDB" != 'y' ] && [ "$useDB" != 'n' ]
+do
+    read -ep "Use sql database (y/n) ? " useDB
+done
+
+if [ "$useDB" == 'y' ]
+then
+    sgbd=''
+    while [ "$sgbd" != "pgsql" ] #&& [ "$sgbd" != "mysql" ]
+    do
+        read -ep "sgbd (mysql/pgsql) ? " sgbd
+    done
+    dbName=''
+    while [ -z "$dbName" ]
+    do
+        read -ep "dbName ? " dbName
+    done
+    dbUser=''
+    while [ -z "$dbUser" ]
+    do
+        read -ep "Db user ? " dbUser
+    done
+    dbPass=''
+    while [ -z "$dbPass" ]
+    do
+        read -esp "Db password ? " dbPass
+    done
+    echo ''
+    dbHost=''
+    while [ -z "$dbHost" ]
+    do
+        read -ep "Db host ? " dbHost
+    done
+    #handle mysql sgbd
+    echo "CREATE DATABASE $dbName;" > /tmp/butterflyquery
+    less ~/workspace/web/ButterflyInstaller/db.sql >> /tmp/butterflyquery
+    psql -w -U $dbUser -h $dbHost $dbName < /tmp/butterflyquery
+    rm /tmp/butterflyquery
+fi
+
+ln -s $butterflyPath/library/Butterfly Butterfly
+
+cd $projectPath
+mkdir www
+if [ $useDB == 'y' ]
+then
+    cp $scriptPath/www/index.php www/index.php
+else
+    cp $scriptPath/www/index-nodb.php www/index.php
+fi
+perl -pi -e "s/%PROJECTNAME%/$PROJECTNAME/g" www/index.php
+
+cd $projectPath
+mkdir -p site/components/modules/
+cp -r $scriptPath/site/components/modules/Default $scriptPath/site/components/modules/Error site/components/modules
+
+mkdir -p site/components/plugins
+
+mkdir -p site/components/widgets
+cp -r $scriptPath/site/components/widgets/Header site/components/widgets
+
+mkdir -p site/config
+if [ $useDB == 'n' ]
+then
+    cp $scriptPath/site/config/config.ini site/config/config-nodb.ini
+else
+    cp $scriptPath/site/config/config.ini site/config/config.ini
+    perl -pi -e "s#%SGBD%#$sgbd#g" site/config/config.ini
+    perl -pi -e "s#%DBHOST%#$dbHost#g" site/config/config.ini
+    perl -pi -e "s#%DBNAME#$dbName#g" site/config/config.ini
+    perl -pi -e "s#%DBUSER%#$dbUser#g" site/config/config.ini
+    perl -pi -e "s#%DBPASS%#$dbPass#g" site/config/config.ini
+fi
+perl -pi -e "s#%PROJECTPATH%#$projectPath#g" site/config/config.ini
+
+
+mkdir -p site/themes
+cp -r $scriptPath/site/themes/default site/themes
