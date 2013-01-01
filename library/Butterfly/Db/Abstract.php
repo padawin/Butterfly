@@ -160,7 +160,7 @@ abstract class Butterfly_Db_Abstract
             $db = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV)->db;
 
             try {
-                static::$_db  = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['base'], $db['user'], $db['pass']);
+                static::$_db = new PDO("{$db['sgbd']}:host={$db['host']};dbname={$db['base']}", $db['user'], $db['pass']);
             }
             catch (PDOException $e) {
                 Throw new Butterfly_Exception($e->getMessage());
