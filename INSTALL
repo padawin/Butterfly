@@ -56,7 +56,7 @@ then
     #handle mysql sgbd
     echo "CREATE DATABASE $dbName;" > /tmp/butterflyquery
     less ~/workspace/web/ButterflyInstaller/db.sql >> /tmp/butterflyquery
-    psql -w -U $dbUser -h $dbHost $dbName < /tmp/butterflyquery
+    psql -U $dbUser -h $dbHost $dbName < /tmp/butterflyquery
     rm /tmp/butterflyquery
 fi
 
