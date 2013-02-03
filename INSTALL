@@ -55,10 +55,15 @@ then
         read -ep "Db host ? " dbHost
     done
     #handle mysql sgbd
-    echo "CREATE DATABASE $dbName;" > /tmp/butterflyquery
-    less ~/workspace/web/ButterflyInstaller/db.sql >> /tmp/butterflyquery
-    psql -U $dbUser -h $dbHost $dbName < /tmp/butterflyquery
-    rm /tmp/butterflyquery
+    echo "CREATE DATABASE $dbName;\
+\
+\c $dbName\
+" > /tmp/butterflydb
+    cat ~/workspace/web/ButterflyInstaller/db.sql >> /tmp/butterflydb
+    #~ psql -U $dbUser -h $dbHost -c "CREATE DATABASE $dbName;"
+    psql -U $dbUser -h $dbHost < /tmp/butterflydb
+    mkdir "$PROJECTPATH/sql"
+    mv /tmp/butterflydb $PROJECTPATH/sql/db.sql
 fi
 
 mkdir $PROJECTPATH/www
