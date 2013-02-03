@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<theme>
+    <css src="styles.css"/>
+    <area name="header">
+        <widget name="Header" />
+    </area>
+</theme>
