@@ -42,7 +42,7 @@ class Butterfly_Layout extends Butterfly_View
      * @access private
      *
      */
-    private $_cssFiles = array();
+    private $_cssFiles = null;
 
     /**
      * @var array $_secondaryCssFiles second list of the layout's css files
@@ -58,7 +58,7 @@ class Butterfly_Layout extends Butterfly_View
      * @access private
      *
      */
-    private $_jsFiles = array();
+    private $_jsFiles = null;
 
     /**
      * @var array $_secondaryJsFiles second list of the layout's css files

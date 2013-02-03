@@ -535,9 +535,15 @@ class Butterfly_FrontController
     protected function _loadTemplate()
     {
         $this->_layout->setBase($this->_config->themes_path . '/' . $this->_theme->getName() . '/');
-        $this->_layout->setFile('template');
-        $this->_layout->setCss($this->_theme->getCss());
-        $this->_layout->setJs($this->_theme->getJs());
+        if (!$this->_layout->getFile() != null) {
+            $this->_layout->setFile('template');
+        }
+        if ($this->_layout->getCss() === null) {
+            $this->_layout->setCss($this->_theme->getCss());
+        }
+        if ($this->_layout->getJs() === null) {
+            $this->_layout->setJs($this->_theme->getJs());
+        }
 
         //dynamically add css and js for the current page
         $currentJs = $this->_theme->theme_name . '/' . strtolower($this->_moduleParam) . '/' . preg_replace('/[-_\s]/','',strtolower($this->_actionParam)) . '.js';
