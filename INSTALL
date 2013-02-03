@@ -18,6 +18,7 @@ do
     read -ep "Butterfly Path ? " butterflyPath
     butterflyPath=$(readlink -f $butterflyPath)
 done
+ln -s $butterflyPath/library/Butterfly "$PROJECTPATH/library/Butterfly"
 
 useDB=''
 while [ "$useDB" != 'y' ] && [ "$useDB" != 'n' ]
@@ -59,8 +60,6 @@ then
     psql -U $dbUser -h $dbHost $dbName < /tmp/butterflyquery
     rm /tmp/butterflyquery
 fi
-
-ln -s $butterflyPath/library/Butterfly Butterfly
 
 mkdir $PROJECTPATH/www
 if [ $useDB == 'y' ]
