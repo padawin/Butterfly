@@ -16,6 +16,7 @@ butterflyPath=''
 while [ -z $butterflyPath ] || [ ! -d $butterflyPath ]
 do
     read -ep "Butterfly Path ? " butterflyPath
+    butterflyPath=$(readlink -f $butterflyPath)
 done
 
 useDB=''
