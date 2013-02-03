@@ -362,10 +362,10 @@ class Butterfly_FrontController
     protected function _loadModule()
     {
         //check if module name and action name are only [A-Za-z]
-        if (!preg_match('#^[\w-_]+$#', $this->_moduleParam)) {
+        if (!preg_match('#^[\w\s\-_]+$#', $this->_moduleParam)) {
             throw new Butterfly_Component_Module_Exception('The module name is not correct');
         }
-        if (!preg_match('#^[\w-_]+$#', $this->_actionParam)) {
+        if (!preg_match('#^[\w\s\-_]+$#', $this->_actionParam)) {
             throw new Butterfly_Component_Module_Exception('The action name is not correct');
         }
 
