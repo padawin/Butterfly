@@ -198,9 +198,9 @@ class Butterfly_View
 
         $url = '/';
 
-        if ($module != '' && $module != $config->default_module) {
+        if ($module != $config->default_module || !empty($getString)) {
             $url .= $module;
-            if ($action != '' && $action != $config->default_action) {
+            if ($action != $config->default_action || !empty($getString)) {
                 $url .= '/' . $action;
             }
         }
