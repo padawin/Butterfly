@@ -369,13 +369,15 @@ class Butterfly_FrontController
             throw new Butterfly_Component_Module_Exception('The action name is not correct');
         }
 
-        if (!is_dir($this->_config->modules_path . '/' . $this->_moduleParam)) {
+        $moduleClassName = preg_replace("/[\s\-_]/", '', $this->_moduleParam);
+
+        if (!is_dir($this->_config->modules_path . '/' . $moduleClassName)) {
             throw new Butterfly_Component_Module_Exception('The module does not exist');
         }
 
         //the controller exists
         try {
-            $controllerName = Butterfly_Factory::getClass($this->_moduleParam . '_Controller');
+            $controllerName = Butterfly_Factory::getClass($moduleClassName . '_Controller');
         }
         //the class does not exist, create generic controller
         catch (Exception $e) {
@@ -384,7 +386,7 @@ class Butterfly_FrontController
         $this->_setModule(new $controllerName($this->_layout));
         $this->_module->init();
 
-        $this->_module->setViewBase($this->_config->modules_path . '/' . $this->_moduleParam . '/views/');
+        $this->_module->setViewBase($this->_config->modules_path . '/' . $moduleClassName . '/views/');
 
         if (!empty($this->_actionParam)) {
             $action = preg_replace('/[-_\s]/', '', strtolower($this->_actionParam)) . 'Action';
