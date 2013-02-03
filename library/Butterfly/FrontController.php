@@ -157,6 +157,15 @@ class Butterfly_FrontController
     }
 
     /**
+    * Return the front Controller's layout
+    *
+    */
+    public function setLayout($layout)
+    {
+        $this->_layout = $layout;
+    }
+
+    /**
      *
      * Entry Point of the website
      * Will :
