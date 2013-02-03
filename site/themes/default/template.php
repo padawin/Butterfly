@@ -6,19 +6,19 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <?php
         foreach($this->getCss() as $styleSheet){?>
-            <link href="/styles/<?=$styleSheet?>" rel="stylesheet" type="text/css" />
+            <link href="styles/<?=$styleSheet?>" rel="stylesheet" type="text/css" />
         <?php }
 
         foreach($this->getSecondaryCss() as $styleSheet){?>
-            <link href="/<?=$styleSheet?>" rel="stylesheet" type="text/css" />
+            <link href="<?=$styleSheet?>" rel="stylesheet" type="text/css" />
         <?php }
 
         foreach($this->getJs() as $jsSheet){?>
-            <script type="text/javascript" src="/js/<?=$jsSheet?>"></script>
+            <script type="text/javascript" src="js/<?=$jsSheet?>"></script>
         <?php }
 
         foreach($this->getSecondaryJs() as $jsSheet){?>
-            <script type="text/javascript" src="/js/<?=$jsSheet?>"></script>
+            <script type="text/javascript" src="js/<?=$jsSheet?>"></script>
         <?php }?>
 
     </head>
