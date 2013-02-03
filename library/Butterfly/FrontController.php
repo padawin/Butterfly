@@ -194,7 +194,9 @@ class Butterfly_FrontController
                 if ($loop == 0) {
                     $configClass = Butterfly_Factory::getClass('Config_Ini');
                     $this->_setConfig($configClass::load(CONFIG_FILE, APPLICATION_ENV));
-
+                    if ($this->_config == null) {
+                        throw new Butterfly_Runtime_Exception('The config file is empty');
+                    }
                     $this->_setIncludePath();
 
                     //load and execute each plugins
