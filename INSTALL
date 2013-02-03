@@ -3,15 +3,14 @@
 scriptPath=$(readlink -f $(dirname $0))
 
 read -p "Project Name ? " PROJECTNAME
+read -ep "Project Path ? " PROJECTPATH
 
-[ -d "$PROJECTNAME" ] && echo "A project with this name already exist" >&2 && exit 1
+[ -d "$PROJECTPATH/$PROJECTNAME" ] && echo "A project with this name already exist" >&2 && exit 1
 
-mkdir $PROJECTNAME
-projectPath=$(readlink -f $PROJECTNAME)
-cd $projectPath
-mkdir library
+PROJECTPATH=$(readlink -f $PROJECTPATH)/$PROJECTNAME
+mkdir $PROJECTPATH
+mkdir "$PROJECTPATH/library"
 
-cd library
 
 butterflyPath=''
 while [ -z $butterflyPath ] || [ ! -d $butterflyPath ]
@@ -62,39 +61,39 @@ fi
 
 ln -s $butterflyPath/library/Butterfly Butterfly
 
-cd $projectPath
-mkdir www
+mkdir $PROJECTPATH/www
 if [ $useDB == 'y' ]
 then
-    cp $scriptPath/www/index.php www/index.php
+    cp $scriptPath/www/index.php $PROJECTPATH/www/index.php
 else
-    cp $scriptPath/www/index-nodb.php www/index.php
+    cp $scriptPath/www/index-nodb.php $PROJECTPATH/www/index.php
 fi
-perl -pi -e "s/%PROJECTNAME%/$PROJECTNAME/g" www/index.php
+perl -pi -e "s/%PROJECTNAME%/$PROJECTNAME/g" $PROJECTPATH/www/index.php
+cp -r $scriptPath/www/styles $PROJECTPATH/www/
 
-cd $projectPath
-mkdir -p site/components/modules/
-cp -r $scriptPath/site/components/modules/Default $scriptPath/site/components/modules/Error site/components/modules
 
-mkdir -p site/components/plugins
+mkdir -p $PROJECTPATH/site/components/modules/
+cp -r $scriptPath/site/components/modules/Default $scriptPath/site/components/modules/Error $PROJECTPATH/site/components/modules
 
-mkdir -p site/components/widgets
-cp -r $scriptPath/site/components/widgets/Header site/components/widgets
+mkdir -p $PROJECTPATH/site/components/plugins
 
-mkdir -p site/config
+mkdir -p $PROJECTPATH/site/components/widgets
+cp -r $scriptPath/site/components/widgets/Header $PROJECTPATH/site/components/widgets
+
+mkdir -p $PROJECTPATH/site/config
 if [ $useDB == 'n' ]
 then
-    cp $scriptPath/site/config/config.ini site/config/config-nodb.ini
+    cp $scriptPath/site/config/config-nodb.ini $PROJECTPATH/site/config/config.ini
 else
-    cp $scriptPath/site/config/config.ini site/config/config.ini
-    perl -pi -e "s#%SGBD%#$sgbd#g" site/config/config.ini
-    perl -pi -e "s#%DBHOST%#$dbHost#g" site/config/config.ini
-    perl -pi -e "s#%DBNAME#$dbName#g" site/config/config.ini
-    perl -pi -e "s#%DBUSER%#$dbUser#g" site/config/config.ini
-    perl -pi -e "s#%DBPASS%#$dbPass#g" site/config/config.ini
+    cp $scriptPath/site/config/config-db.ini $PROJECTPATH/site/config/config.ini
+    perl -pi -e "s#%SGBD%#$sgbd#g" $PROJECTPATH/site/config/config.ini
+    perl -pi -e "s#%DBHOST%#$dbHost#g" $PROJECTPATH/site/config/config.ini
+    perl -pi -e "s#%DBNAME#$dbName#g" $PROJECTPATH/site/config/config.ini
+    perl -pi -e "s#%DBUSER%#$dbUser#g" $PROJECTPATH/site/config/config.ini
+    perl -pi -e "s#%DBPASS%#$dbPass#g" $PROJECTPATH/site/config/config.ini
 fi
-perl -pi -e "s#%PROJECTPATH%#$projectPath#g" site/config/config.ini
+perl -pi -e "s#%PROJECTPATH%#$PROJECTPATH#g" $PROJECTPATH/site/config/config.ini
 
 
-mkdir -p site/themes
-cp -r $scriptPath/site/themes/default site/themes
+mkdir -p $PROJECTPATH/site/themes
+cp -r $scriptPath/site/themes/default $PROJECTPATH/site/themes
