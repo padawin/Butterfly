@@ -57,6 +57,18 @@ class Butterfly_View
 
     /**
      *
+     * Set the view's layout
+     *
+     * @return Layout
+     *
+     */
+    public function setLayout(&$layout)
+    {
+        $this->_layout = $layout;
+    }
+
+    /**
+     *
      */
     public function setFile($file)
     {
