@@ -27,7 +27,8 @@ abstract class Butterfly_Component
      */
     public function __construct($layout)
     {
-        $this->_view = new Butterfly_View($layout);
+        $this->_view = Butterfly_Factory::create('View');
+        $this->_view->setLayout($layout);
     }
 
     /**
