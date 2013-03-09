@@ -174,43 +174,16 @@ class Butterfly_View
      */
     public function url($module = null, $action = null, $get = array())
     {
-        $config = Butterfly_Config_Ini::load(CONFIG_FILE, APPLICATION_ENV);
-        if (empty($module)) {
-            $module = $config->default_module;
-        }
-        if (empty($action)) {
-            $action = $config->default_action;
-        }
-
         if (is_array($get)) {
-            $getString = array();
-            foreach ($get as $param => $value) {
-                $getString[] = self::strToUrl($param) . '/' . $this->strToUrl($value);
-            }
-            $getString = implode('/', $getString);
+            $get = http_build_query($get);
         }
         elseif (!is_string($get)) {
             throw new View_Exception('The $get arg must be a string or an associative array');
         }
-        else {
-            $getString = $get;
-        }
 
-        $url = '/';
-
-        if ($module != $config->default_module || !empty($getString)) {
-            $url .= $module;
-            if ($action != $config->default_action || !empty($getString)) {
-                $url .= '/' . $action;
-            }
-        }
-
-        if ($url == '/') {
-            return $url;
-        }
-        else {
-            return strtolower(rtrim($url, '/') . ($getString != '' ? '/' . $getString : '' ));
-        }
+        return '?' . http_build_query(
+            array('module' => $module, 'action' => $action)
+        ) . (!empty($get) ? "&{$get}" : '');
     }
 
     public function display($string)
