@@ -223,6 +223,12 @@ class Butterfly_Layout extends Butterfly_View
 		return $this->_cssFiles;
 	}
 
+	/**
+	 *
+	 * @XXX Broken, URL_BASE_PATH does not exists, will have to be change to
+	 * get the base url in the args.
+	 *
+	 */
 	public function displayStyleSheets($allSheets)
 	{
 		if ($allSheets) {
@@ -238,6 +244,12 @@ class Butterfly_Layout extends Butterfly_View
 		}
 	}
 
+	/**
+	 *
+	 * @XXX Broken, URL_BASE_PATH does not exists, will have to be change to
+	 * get the base url in the args.
+	 *
+	 */
 	public function displayJsScripts($allScripts)
 	{
 		if ($allScripts) {
