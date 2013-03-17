@@ -3,17 +3,17 @@
 //define the autoload function to load chasses
 function  __autoload($className)
 {
-    $className = implode("/", explode("_", $className)) . '.php';
-    $paths = explode(PATH_SEPARATOR,get_include_path());
+	$className = implode("/", explode("_", $className)) . '.php';
+	$paths = explode(PATH_SEPARATOR,get_include_path());
 
-    foreach ($paths as $p) {
-        if (file_exists(rtrim($p, '/') . "/$className")) {
-            require $className;
-            return;
-        }
-    }
+	foreach ($paths as $p) {
+		if (file_exists(rtrim($p, '/') . "/$className")) {
+			require $className;
+			return;
+		}
+	}
 
-    throw new Exception("The file $className does not exist");
+	throw new Exception("The file $className does not exist");
 }
 
 define('APPLICATION_ENV', 'development');
