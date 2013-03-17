@@ -27,7 +27,7 @@ class Butterfly_Factory
 		return self::_loadClass($className, false);
 	}
 
-	protected function _loadClass($className, $instantiate)
+	protected static function _loadClass($className, $instantiate)
 	{
 		try {
 			if (class_exists($className)) {
