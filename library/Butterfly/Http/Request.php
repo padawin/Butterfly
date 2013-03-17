@@ -17,105 +17,105 @@
 class Butterfly_Http_Request
 {
 
-    private $_post;
+	private $_post;
 
-    private $_get;
+	private $_get;
 
-    private $_params = array();
+	private $_params = array();
 
-    private $_dispatched = false;
+	private $_dispatched = false;
 
-    private static $_instance = null;
+	private static $_instance = null;
 
-    private function __construct()
-    {
+	private function __construct()
+	{
 
-    }
+	}
 
-    public static function getInstance()
-    {
-        if (empty(self::$_instance)) {
-            self::$_instance = new self;
-            self::$_instance->_init();
-        }
+	public static function getInstance()
+	{
+		if (empty(self::$_instance)) {
+			self::$_instance = new self;
+			self::$_instance->_init();
+		}
 
-        return self::$_instance;
-    }
+		return self::$_instance;
+	}
 
-    protected function _init()
-    {
-        $this->_get = $_GET;
-        $this->_post = $_POST;
-    }
+	protected function _init()
+	{
+		$this->_get = $_GET;
+		$this->_post = $_POST;
+	}
 
-    public function setParam($name, $value)
-    {
-        $this->_params[$name] = $value;
-    }
+	public function setParam($name, $value)
+	{
+		$this->_params[$name] = $value;
+	}
 
-    /**
-     * Return the param named $paramName
-     * @param $paramName name of the requested parameter
-     */
-    public function getParam($paramName, $default = null)
-    {
-        if (isset($this->_params[$paramName])) {
-            return htmlspecialchars($this->_params[$paramName]);
-        }
-        elseif (isset($this->_get[$paramName])) {
-            return htmlspecialchars($this->_get[$paramName]);
-        }
-        elseif (isset($this->_post[$paramName])) {
-            return htmlspecialchars($this->_post[$paramName]);
-        }
-        else {
-            return $default;
-        }
-    }
+	/**
+	 * Return the param named $paramName
+	 * @param $paramName name of the requested parameter
+	 */
+	public function getParam($paramName, $default = null)
+	{
+		if (isset($this->_params[$paramName])) {
+			return htmlspecialchars($this->_params[$paramName]);
+		}
+		elseif (isset($this->_get[$paramName])) {
+			return htmlspecialchars($this->_get[$paramName]);
+		}
+		elseif (isset($this->_post[$paramName])) {
+			return htmlspecialchars($this->_post[$paramName]);
+		}
+		else {
+			return $default;
+		}
+	}
 
-    public function getAllParams()
-    {
-        return array_merge($this->_post, $this->_get, $this->_params);
-    }
+	public function getAllParams()
+	{
+		return array_merge($this->_post, $this->_get, $this->_params);
+	}
 
-    public function hasPostParam($param)
-    {
-        return !empty($this->_post[$param]);
-    }
+	public function hasPostParam($param)
+	{
+		return !empty($this->_post[$param]);
+	}
 
-    public function getPostParam($param)
-    {
-        if ($this->hasPostParam($param)) {
-            return $this->_post[$param];
-        }
-        else {
-            return null;
-        }
-    }
+	public function getPostParam($param)
+	{
+		if ($this->hasPostParam($param)) {
+			return $this->_post[$param];
+		}
+		else {
+			return null;
+		}
+	}
 
-    public function forward($module, $action, $params = array())
-    {
-        $this->_dispatched = false;
+	public function forward($module, $action, $params = array())
+	{
+		$this->_dispatched = false;
 
-        $this->_params = array_merge($this->_params, $params);
-        $this->_params['module'] = $module;
-        $this->_params['action'] = $action;
+		$this->_params = array_merge($this->_params, $params);
+		$this->_params['module'] = $module;
+		$this->_params['action'] = $action;
 
-    }
+	}
 
-    public function isDispatched()
-    {
-        return $this->_dispatched;
-    }
+	public function isDispatched()
+	{
+		return $this->_dispatched;
+	}
 
-    public function setDispatch($dispatch)
-    {
-        $this->_dispatched = $dispatch;
-    }
+	public function setDispatch($dispatch)
+	{
+		$this->_dispatched = $dispatch;
+	}
 
-    public function redirect($url = '')
-    {
-        header( "Location: {$url}");
-        exit;
-    }
+	public function redirect($url = '')
+	{
+		header( "Location: {$url}");
+		exit;
+	}
 }

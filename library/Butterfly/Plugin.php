@@ -10,8 +10,8 @@
  */
 abstract class Butterfly_Plugin
 {
-    private function __construct()
-    {
+	private function __construct()
+	{
 
-    }
+	}
 }
