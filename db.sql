@@ -3,12 +3,12 @@
 --
 
 CREATE TABLE site (
-  id_site SERIAL NOT NULL ,
-  site_name varchar(30) NOT NULL,
-  site_desc text,
-  date_creation TIMESTAMP WITH TIME ZONE NOT NULL,
-  date_update TIMESTAMP WITH TIME ZONE,
-  PRIMARY KEY (id_site)
+	id_site SERIAL NOT NULL ,
+	site_name varchar(30) NOT NULL,
+	site_desc text,
+	date_creation TIMESTAMP WITH TIME ZONE NOT NULL,
+	date_update TIMESTAMP WITH TIME ZONE,
+	PRIMARY KEY (id_site)
 );
 
 --
@@ -25,14 +25,14 @@ INSERT INTO site (id_site, site_name, site_desc, date_creation, date_update) VAL
 --
 
 CREATE TABLE theme (
-  id_theme SERIAL NOT NULL ,
-  theme_name varchar(50) NOT NULL,
-  theme_description text NOT NULL,
-  id_site int NOT NULL,
-  theme_current boolean NOT NULL DEFAULT FALSE,
-  date_creation TIMESTAMP WITH TIME ZONE NOT NULL,
-  date_update TIMESTAMP WITH TIME ZONE,
-  PRIMARY KEY (id_theme)
+	id_theme SERIAL NOT NULL ,
+	theme_name varchar(50) NOT NULL,
+	theme_description text NOT NULL,
+	id_site int NOT NULL,
+	theme_current boolean NOT NULL DEFAULT FALSE,
+	date_creation TIMESTAMP WITH TIME ZONE NOT NULL,
+	date_update TIMESTAMP WITH TIME ZONE,
+	PRIMARY KEY (id_theme)
 );
 
 --

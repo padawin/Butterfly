@@ -15,63 +15,63 @@ mkdir "$PROJECTPATH/library"
 butterflyPath=''
 while [ -z $butterflyPath ] || [ ! -d $butterflyPath ]
 do
-    read -ep "Butterfly Path ? " butterflyPath
-    butterflyPath=$(readlink -f $butterflyPath)
+	read -ep "Butterfly Path ? " butterflyPath
+	butterflyPath=$(readlink -f $butterflyPath)
 done
 ln -s $butterflyPath/library/Butterfly "$PROJECTPATH/library/Butterfly"
 
 useDB=''
 while [ "$useDB" != 'y' ] && [ "$useDB" != 'n' ]
 do
-    read -ep "Use sql database (y/n) ? " useDB
+	read -ep "Use sql database (y/n) ? " useDB
 done
 
 if [ "$useDB" == 'y' ]
 then
-    sgbd=''
-    while [ "$sgbd" != "pgsql" ] #&& [ "$sgbd" != "mysql" ]
-    do
-        read -ep "sgbd (mysql/pgsql) ? " sgbd
-    done
-    dbName=''
-    while [ -z "$dbName" ]
-    do
-        read -ep "dbName ? " dbName
-    done
-    dbUser=''
-    while [ -z "$dbUser" ]
-    do
-        read -ep "Db user ? " dbUser
-    done
-    dbPass=''
-    while [ -z "$dbPass" ]
-    do
-        read -esp "Db password ? " dbPass
-    done
-    echo ''
-    dbHost=''
-    while [ -z "$dbHost" ]
-    do
-        read -ep "Db host ? " dbHost
-    done
-    #handle mysql sgbd
-    echo "CREATE DATABASE $dbName;\
+	sgbd=''
+	while [ "$sgbd" != "pgsql" ] #&& [ "$sgbd" != "mysql" ]
+	do
+		read -ep "sgbd (mysql/pgsql) ? " sgbd
+	done
+	dbName=''
+	while [ -z "$dbName" ]
+	do
+		read -ep "dbName ? " dbName
+	done
+	dbUser=''
+	while [ -z "$dbUser" ]
+	do
+		read -ep "Db user ? " dbUser
+	done
+	dbPass=''
+	while [ -z "$dbPass" ]
+	do
+		read -esp "Db password ? " dbPass
+	done
+	echo ''
+	dbHost=''
+	while [ -z "$dbHost" ]
+	do
+		read -ep "Db host ? " dbHost
+	done
+	#handle mysql sgbd
+	echo "CREATE DATABASE $dbName;\
 \
 \c $dbName\
 " > /tmp/butterflydb
-    cat ~/workspace/web/ButterflyInstaller/db.sql >> /tmp/butterflydb
-    #~ psql -U $dbUser -h $dbHost -c "CREATE DATABASE $dbName;"
-    psql -U $dbUser -h $dbHost < /tmp/butterflydb
-    mkdir "$PROJECTPATH/sql"
-    mv /tmp/butterflydb $PROJECTPATH/sql/db.sql
+	cat ~/workspace/web/ButterflyInstaller/db.sql >> /tmp/butterflydb
+	#~ psql -U $dbUser -h $dbHost -c "CREATE DATABASE $dbName;"
+	psql -U $dbUser -h $dbHost < /tmp/butterflydb
+	mkdir "$PROJECTPATH/sql"
+	mv /tmp/butterflydb $PROJECTPATH/sql/db.sql
 fi
 
 mkdir $PROJECTPATH/www
 if [ $useDB == 'y' ]
 then
-    cp $scriptPath/www/index.php $PROJECTPATH/www/index.php
+	cp $scriptPath/www/index.php $PROJECTPATH/www/index.php
 else
-    cp $scriptPath/www/index-nodb.php $PROJECTPATH/www/index.php
+	cp $scriptPath/www/index-nodb.php $PROJECTPATH/www/index.php
 fi
 perl -pi -e "s/%PROJECTNAME%/$PROJECTNAME/g" $PROJECTPATH/www/index.php
 cp -r $scriptPath/www/styles $PROJECTPATH/www/
@@ -88,14 +88,14 @@ cp -r $scriptPath/site/components/widgets/Header $PROJECTPATH/site/components/wi
 mkdir -p $PROJECTPATH/site/config
 if [ $useDB == 'n' ]
 then
-    cp $scriptPath/site/config/config-nodb.ini $PROJECTPATH/site/config/config.ini
+	cp $scriptPath/site/config/config-nodb.ini $PROJECTPATH/site/config/config.ini
 else
-    cp $scriptPath/site/config/config-db.ini $PROJECTPATH/site/config/config.ini
-    perl -pi -e "s#%SGBD%#$sgbd#g" $PROJECTPATH/site/config/config.ini
-    perl -pi -e "s#%DBHOST%#$dbHost#g" $PROJECTPATH/site/config/config.ini
-    perl -pi -e "s#%DBNAME#$dbName#g" $PROJECTPATH/site/config/config.ini
-    perl -pi -e "s#%DBUSER%#$dbUser#g" $PROJECTPATH/site/config/config.ini
-    perl -pi -e "s#%DBPASS%#$dbPass#g" $PROJECTPATH/site/config/config.ini
+	cp $scriptPath/site/config/config-db.ini $PROJECTPATH/site/config/config.ini
+	perl -pi -e "s#%SGBD%#$sgbd#g" $PROJECTPATH/site/config/config.ini
+	perl -pi -e "s#%DBHOST%#$dbHost#g" $PROJECTPATH/site/config/config.ini
+	perl -pi -e "s#%DBNAME#$dbName#g" $PROJECTPATH/site/config/config.ini
+	perl -pi -e "s#%DBUSER%#$dbUser#g" $PROJECTPATH/site/config/config.ini
+	perl -pi -e "s#%DBPASS%#$dbPass#g" $PROJECTPATH/site/config/config.ini
 fi
 perl -pi -e "s#%PROJECTPATH%#$PROJECTPATH#g" $PROJECTPATH/site/config/config.ini
 
