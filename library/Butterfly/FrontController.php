@@ -204,7 +204,7 @@ class Butterfly_FrontController
 				}
 
 				$this->_moduleParam = ucfirst($this->_request->getParam($this->_config->module_param, ucfirst($this->_config->default_module)));
-				$this->_actionParam = $this->_request->getParam( $this->_config->action_param, $this->_config->default_action );
+				$this->_actionParam = $this->_request->getParam($this->_config->action_param, $this->_config->default_action);
 
 				//disable layout render if ajax
 				if ($this->_request->getParam('ajax')) {
