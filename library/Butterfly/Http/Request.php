@@ -59,18 +59,15 @@ class Butterfly_Http_Request
 	 */
 	public function getParam($paramName, $default = null)
 	{
-		if (isset($this->_params[$paramName])) {
-			return htmlspecialchars($this->_params[$paramName]);
+		foreach (array($this->_params, $this->_get, $this->_post) as $list) {
+			if (isset($list[$paramName])) {
+				if (!empty($list[$paramName]) || empty($default)) {
+					return htmlspecialchars($list[$paramName]);
+				}
+			}
 		}
-		elseif (isset($this->_get[$paramName])) {
-			return htmlspecialchars($this->_get[$paramName]);
-		}
-		elseif (isset($this->_post[$paramName])) {
-			return htmlspecialchars($this->_post[$paramName]);
-		}
-		else {
-			return $default;
-		}
+
+		return $default;
 	}
 
 	public function getAllParams()
