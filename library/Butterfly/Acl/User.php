@@ -34,7 +34,7 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 		if ($acl != null && $acl['hash'] != null) {
 			$user = self::loadByLogin($acl['acl_user_login']);
 			//the connected used is correct
-			if ($user != null && $acl['hash'] == sha1($user->acl_user_passwd)) {
+			if ($user != null && $acl['hash'] == static::_hashPassword($user->acl_user_passwd)) {
 				Butterfly_Session::regenerate();
 				return $user;
 			}
@@ -59,7 +59,7 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 		return self::_fetchOne(
 			'Butterfly_Acl_User',
 			'acl_user_login = :login AND acl_user_passwd = :passwd',
-			array(':login' => $login, 'passwd' => sha1($passwd))
+			array(':login' => $login, 'passwd' => static::_hashPassword($passwd))
 		);
 	}
 
@@ -70,14 +70,14 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 		$this->date_last_connexion = date('Y-m-d H:i:s');
 		$this->ip_last_connexion = $_SERVER['REMOTE_ADDR'];
 		$this->save();
-		$acl['hash'] = sha1($this->acl_user_passwd);
+		$acl['hash'] = static::_hashPassword($this->acl_user_passwd);
 		Butterfly_Session::set(
 			'acl',
 			array(
 				'id_acl_user' => $this->id_acl_user,
 				'acl_user_login' => $this->acl_user_login,
 				'acl_user_passwd' => $this->acl_user_passwd,
-				'hash' => sha1($this->acl_user_passwd)
+				'hash' => $acl['hash']
 			),
 			true
 		);
@@ -125,5 +125,33 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 	{
 		$user = new self;
 		return $user->_fetch('Butterfly_Acl_User', $where, $values, $additionnals, $join);
+	}
+
+	public function getAuthorizationToken()
+	{
+		return hash_hmac("sha256", $this->acl_user_login . date('YmdH'), $this->date_creation);
+	}
+
+	public function checkAuthorizationToken($token)
+	{
+		return $token == $this->getAuthorizationToken();
+	}
+
+	public function setPassword($password)
+	{
+		$this->acl_user_passwd = static::_hashPassword($password);
+	}
+
+	public function checkPassword($password)
+	{
+		return static::_hashPassword($password) == $this->acl_user_passwd;
+	}
+
+	/**
+	 * XXX must be replaced with a hash_hmac call
+	 */
+	protected static function _hashPassword($password)
+	{
+		return sha1($password);
 	}
 }
