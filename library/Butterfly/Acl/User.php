@@ -127,6 +127,16 @@ class Butterfly_Acl_User extends Butterfly_Db_Abstract
 		return $user->_fetch('Butterfly_Acl_User', $where, $values, $additionnals, $join);
 	}
 
+	public function getAuthorizationToken()
+	{
+		return hash_hmac("sha256", $this->acl_user_login . date('YmdH'), $this->date_creation);
+	}
+
+	public function checkAuthorizationToken($token)
+	{
+		return $token == $this->getAuthorizationToken();
+	}
+
 	public function setPassword($password)
 	{
 		$this->acl_user_passwd = static::_hashPassword($password);
